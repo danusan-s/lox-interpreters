@@ -83,6 +83,9 @@ public class Parser {
     }
 
     private Stmt statement() {
+        if (match(IF)){
+            return ifStatement();
+        }
         if (match(PRINT)) {
             return printStatement();
         }
@@ -101,6 +104,20 @@ public class Parser {
         return statements;
     }
 
+    private Stmt ifStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after condition.");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
     private Stmt printStatement() {
         Expr value = expression();
         consume(SEMICOLON, "Expect ';' after value.");
@@ -114,11 +131,23 @@ public class Parser {
     }
 
     private Expr expression() {
-        return assignment();
+        return comma();
+    }
+
+    private Expr comma() {
+        Expr expr = assignment();
+
+        while (match(COMMA)) {
+            Token comma = previous();
+            Expr right = assignment();
+            expr = new Expr.Binary(expr, comma, right);
+        }
+
+        return expr;
     }
 
     private Expr assignment() {
-        Expr expr = comma();
+        Expr expr = or();
 
         if (match(EQUAL)) {
             Token equals = previous();
@@ -135,13 +164,25 @@ public class Parser {
         return expr;
     }
 
-    private Expr comma() {
+    private Expr or() {
+        Expr expr = and();
+
+        if (match(OR)) {
+            Token or = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, or, right);
+        }
+
+        return expr;
+    }
+
+    private Expr and() {
         Expr expr = equality();
 
-        while (match(COMMA)) {
-            Token comma = previous();
+        if (match(AND)) {
+            Token and = previous();
             Expr right = equality();
-            expr = new Expr.Binary(expr, comma, right);
+            expr = new Expr.Logical(expr, and, right);
         }
 
         return expr;
