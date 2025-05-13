@@ -51,6 +51,15 @@ public class Parser {
         return previous();
     }
 
+    public Expr parse() {
+        try {
+            return expression();
+        } catch (ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
+
     private Expr expression() {
         return equality();
     }
@@ -131,6 +140,8 @@ public class Parser {
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
+
+        throw error(peek(), "Expect expression.");
     }
 
     private Token consume(TokenType type, String message) {
@@ -142,5 +153,29 @@ public class Parser {
     private ParseError error(Token token, String message) {
         Lox.error(token, message);
         return new ParseError();
+    }
+
+    private void synchronize() {
+        advance();
+
+        while (!isAtEnd()) {
+            // Explicit boundary
+            if (previous().type == SEMICOLON) return;
+
+            // If no semicolon, infer from token as these are common start of statements.
+            switch (peek().type) {
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                    return;
+            }
+
+            advance();
+        }
     }
 }

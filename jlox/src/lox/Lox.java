@@ -45,16 +45,21 @@ public class Lox {
 
     // Core function for running code
     private static void run(String source) {
-        // TODO: Add a interpreter
-
         // Tokenize the file or line
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
         // Do something with the tokens
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
+
+        if (hadError) return;
+
+        System.out.println(new AstPrinter().print(expression));
+    }
+
+    static void error(int line, String message) {
+        report(line, "", message);
     }
 
     static void error(Token token, String message) {
