@@ -55,13 +55,24 @@ public class Parser {
         try {
             return expression();
         } catch (ParseError error) {
-            synchronize();
             return null;
         }
     }
 
     private Expr expression() {
-        return equality();
+        return comma();
+    }
+
+    private Expr comma() {
+        Expr expr = equality();
+
+        while (match(COMMA)) {
+            Token comma = previous();
+            Expr right = equality();
+            expr = new Expr.Binary(expr, comma, right);
+        }
+
+        return expr;
     }
 
     private Expr equality() {
