@@ -33,7 +33,7 @@ public class AstPrinter implements Expr.Visitor<String> {
     }
 
     @Override
-    public String visitAssignExpr(Expr.Assign expr){
+    public String visitAssignExpr(Expr.Assign expr) {
         return " = " + expr.name.lexeme + " " + expr.value.accept(this);
     }
 
