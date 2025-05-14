@@ -3,7 +3,7 @@ package lox;
 import java.util.HashMap;
 import java.util.Map;
 
-class Environment {
+public class Environment {
     final Environment enclosing;
 
     Environment() {

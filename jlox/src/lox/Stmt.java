@@ -16,6 +16,8 @@ public abstract class Stmt {
         R visitIf(If stmt);
 
         R visitWhile(While stmt);
+
+        R visitFunction(Function stmt);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -92,7 +94,7 @@ public abstract class Stmt {
     }
 
     public static class While extends Stmt {
-        While(Expr condition,Stmt body) {
+        While(Expr condition, Stmt body) {
             this.condition = condition;
             this.body = body;
         }
@@ -103,6 +105,23 @@ public abstract class Stmt {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitWhile(this);
+        }
+    }
+
+    public static class Function extends Stmt {
+        Function(Token name, List<Token> params, List<Stmt> body) {
+            this.name = name;
+            this.params = params;
+            this.body = body;
+        }
+
+        final Token name;
+        final List<Token> params;
+        final List<Stmt> body;
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitFunction(this);
         }
     }
 }
