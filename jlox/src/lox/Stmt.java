@@ -5,21 +5,23 @@ import java.util.List;
 public abstract class Stmt {
 
     interface Visitor<R> {
-        R visitExpression(Expression stmt);
+        R visitExpressionStmt(Expression stmt);
 
-        R visitPrint(Print stmt);
+        R visitPrintStmt(Print stmt);
 
-        R visitVar(Var stmt);
+        R visitVarStmt(Var stmt);
 
-        R visitBlock(Block stmt);
+        R visitBlockStmt(Block stmt);
 
-        R visitIf(If stmt);
+        R visitIfStmt(If stmt);
 
-        R visitWhile(While stmt);
+        R visitWhileStmt(While stmt);
 
-        R visitFunction(Function stmt);
+        R visitFunctionStmt(Function stmt);
 
-        R visitReturn(Return stmt);
+        R visitReturnStmt(Return stmt);
+
+        R visitClassStmt(Class stmt);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -33,7 +35,7 @@ public abstract class Stmt {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitExpression(this);
+            return visitor.visitExpressionStmt(this);
         }
     }
 
@@ -46,7 +48,7 @@ public abstract class Stmt {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitPrint(this);
+            return visitor.visitPrintStmt(this);
         }
     }
 
@@ -61,7 +63,7 @@ public abstract class Stmt {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitVar(this);
+            return visitor.visitVarStmt(this);
         }
     }
 
@@ -74,7 +76,7 @@ public abstract class Stmt {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitBlock(this);
+            return visitor.visitBlockStmt(this);
         }
     }
 
@@ -91,7 +93,7 @@ public abstract class Stmt {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitIf(this);
+            return visitor.visitIfStmt(this);
         }
     }
 
@@ -106,7 +108,7 @@ public abstract class Stmt {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitWhile(this);
+            return visitor.visitWhileStmt(this);
         }
     }
 
@@ -123,7 +125,7 @@ public abstract class Stmt {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitFunction(this);
+            return visitor.visitFunctionStmt(this);
         }
     }
 
@@ -138,7 +140,22 @@ public abstract class Stmt {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitReturn(this);
+            return visitor.visitReturnStmt(this);
+        }
+    }
+
+    public static class Class extends Stmt {
+        Class(Token name, List<Stmt.Function> methods) {
+            this.name = name;
+            this.methods = methods;
+        }
+
+        final Token name;
+        final List<Stmt.Function> methods;
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitClassStmt(this);
         }
     }
 }
