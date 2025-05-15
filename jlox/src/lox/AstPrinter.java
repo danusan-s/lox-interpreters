@@ -58,6 +58,16 @@ public class AstPrinter implements Expr.Visitor<String> {
         return "< set " + expr.object + " " + expr.name + " " + expr.value + " >";
     }
 
+    @Override
+    public String visitThisExpr(Expr.This expr) {
+        return "< this >";
+    }
+
+    @Override
+    public String visitSuperExpr(Expr.Super expr) {
+        return "< super " + expr.method + " >";
+    }
+
     private String parenthesize(String name, Expr... exprs) {
         StringBuilder builder = new StringBuilder();
 
