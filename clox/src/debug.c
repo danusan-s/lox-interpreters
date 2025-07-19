@@ -46,14 +46,14 @@ int disassembleInstruction(const Chunk *chunk, int offset) {
 
   uint8_t instruction = chunk->code[offset];
   switch (instruction) {
-  case OP_RETURN:
-    return simpleInstruction("OP_RETURN", offset);
-  case OP_CONSTANT:
-    return constantInstruction("OP_CONSTANT", chunk, offset);
-  case OP_CONSTANT_LONG:
-    return constantLongInstruction("OP_CONSTANT_LONG", chunk, offset);
-  default:
-    printf("UNKNOWN OPCODE %d\n", instruction);
-    return offset + 1;
+    case OP_RETURN:
+      return simpleInstruction("OP_RETURN", offset);
+    case OP_CONSTANT:
+      return constantInstruction("OP_CONSTANT", chunk, offset);
+    case OP_CONSTANT_LONG:
+      return constantLongInstruction("OP_CONSTANT_LONG", chunk, offset);
+    default:
+      printf("UNKNOWN OPCODE %d\n", instruction);
+      return offset + 1;
   }
 }

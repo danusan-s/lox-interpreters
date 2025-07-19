@@ -1,8 +1,11 @@
 #include "chunk.h"
 #include "debug.h"
+#include "vm.h"
 #include <stdio.h>
 
 int main(int argc, const char *argv[]) {
+  initVM();
+
   Chunk chunk;
   initChunk(&chunk);
   printf("Chunk initialized.\n");
@@ -10,11 +13,11 @@ int main(int argc, const char *argv[]) {
   for (int i = 0; i < 300; i++) {
     writeConstant(&chunk, i, 123);
   }
-  printf("%dn", chunk.lcount);
   writeChunk(&chunk, OP_RETURN, 123);
 
-  printf("Dissassembling chunk...\n");
-  disassembleChunk(&chunk, "test chunk");
+  interpret(&chunk);
+
+  freeVM();
   freeChunk(&chunk);
 
   return 0;
