@@ -1,1 +1,4 @@
 jlox/sample.lox
+clox/build
+clox/compile_commands.json
+clox/.cache/clangd/index
