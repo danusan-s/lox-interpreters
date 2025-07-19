@@ -12,6 +12,10 @@ include_directories(include)
 # Get all .c files in src/
 file(GLOB SOURCES "src/*.c")
 
+# Add AddressSanitizer flags
+add_compile_options(-g -fsanitize=address -fno-omit-frame-pointer)
+add_link_options(-fsanitize=address)
+
 # Add the executable
 add_executable(clox ${SOURCES})
 
