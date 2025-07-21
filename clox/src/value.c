@@ -23,4 +23,6 @@ void freeValueArray(ValueArray *array) {
   initValueArray(array);
 }
 
-void printValue(Value value) { printf("%g", value); }
+void printValue(Value value) {
+  printf("%g", value);
+}
