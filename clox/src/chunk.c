@@ -55,19 +55,6 @@ int addConstant(Chunk *chunk, Value value) {
   return chunk->constants.count - 1;
 }
 
-void writeConstant(Chunk *chunk, Value value, int line) {
-  int constantIndex = addConstant(chunk, value);
-  if (constantIndex < 256) {
-    writeChunk(chunk, OP_CONSTANT, line);
-    writeChunk(chunk, (uint8_t)constantIndex, line);
-  } else {
-    writeChunk(chunk, OP_CONSTANT_LONG, line);
-    writeChunk(chunk, (uint8_t)(constantIndex & 0xFF), line);
-    writeChunk(chunk, (uint8_t)((constantIndex >> 8) & 0xFF), line);
-    writeChunk(chunk, (uint8_t)((constantIndex >> 16) & 0xFF), line);
-  }
-}
-
 int getLine(const Chunk *chunk, int offset) {
   if (offset < 0 || offset >= chunk->count) {
     printf("ERROR: Offset out of bounds\n");

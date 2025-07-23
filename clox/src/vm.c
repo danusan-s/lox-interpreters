@@ -76,9 +76,6 @@ static InterpretResult run() {
         Value constant = vm.chunk->constants.values[constant_ind];
         push(constant);
 
-        printf(">> ");
-        printValue(constant);
-        printf("\n");
         break;
       }
       case OP_CONSTANT_LONG: {
@@ -87,9 +84,6 @@ static InterpretResult run() {
         Value constant = vm.chunk->constants.values[constant_ind];
         push(constant);
 
-        printf(">> ");
-        printValue(constant);
-        printf("\n");
         break;
       }
       case OP_NEGATE: {
@@ -119,6 +113,21 @@ static InterpretResult run() {
 }
 
 InterpretResult interpret(char *source) {
-  compile(source);
-  return INTERPRET_OK;
+  Chunk chunk;
+  initChunk(&chunk);
+
+  if (!compile(source, &chunk)) {
+    freeChunk(&chunk);
+    return INTERPRET_COMPILE_ERROR;
+  }
+
+  vm.chunk = &chunk;
+  vm.ip = vm.chunk->code;
+
+  resetStack();
+
+  InterpretResult result = run();
+
+  freeChunk(&chunk);
+  return result;
 }
