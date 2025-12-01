@@ -2,6 +2,7 @@
 #define CLOX_COMPILER_H
 
 #include "chunk.h"
+#include "object.h"
 #include "scanner.h"
 
 typedef struct {

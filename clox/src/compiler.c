@@ -1,4 +1,5 @@
 #include "compiler.h"
+#include "chunk.h"
 #include "common.h"
 #include "value.h"
 #include <stdio.h>
@@ -67,13 +68,8 @@ static void emitBytes(uint8_t byte1, uint8_t byte2) {
   emitByte(byte2);
 }
 
-static void expression();
-static ParseRule *getRule(TokenType type);
-static void parsePrecedence(Precedence precedence);
-
-static void number() {
-  double value = strtod(parser.previous.start, NULL);
-  int constantIndex = addConstant(currentChunk(), NUMBER_VAL(value));
+static void emitConstant(Value value) {
+  int constantIndex = addConstant(currentChunk(), value);
   if (constantIndex < 256) {
     emitBytes(OP_CONSTANT, (uint8_t)constantIndex);
   } else {
@@ -82,6 +78,15 @@ static void number() {
     emitByte((uint8_t)((constantIndex >> 8) & 0xFF));
     emitByte((uint8_t)((constantIndex >> 16) & 0xFF));
   }
+}
+
+static void expression();
+static ParseRule *getRule(TokenType type);
+static void parsePrecedence(Precedence precedence);
+
+static void number() {
+  double value = strtod(parser.previous.start, NULL);
+  emitConstant(NUMBER_VAL(value));
 }
 
 static void grouping() {
@@ -165,6 +170,11 @@ static void literal() {
   }
 }
 
+static void string() {
+  emitConstant(OBJ_VAL(
+      copyString(parser.previous.start + 1, parser.previous.length - 2)));
+}
+
 ParseRule rules[] = {
     [TOKEN_LEFT_PAREN] = {grouping, NULL, PREC_NONE},
     [TOKEN_RIGHT_PAREN] = {NULL, NULL, PREC_NONE},
@@ -186,7 +196,7 @@ ParseRule rules[] = {
     [TOKEN_LESS] = {NULL, binary, PREC_COMPARISON},
     [TOKEN_LESS_EQUAL] = {NULL, binary, PREC_COMPARISON},
     [TOKEN_IDENTIFIER] = {NULL, NULL, PREC_NONE},
-    [TOKEN_STRING] = {NULL, NULL, PREC_NONE},
+    [TOKEN_STRING] = {string, NULL, PREC_NONE},
     [TOKEN_NUMBER] = {number, NULL, PREC_NONE},
     [TOKEN_AND] = {NULL, NULL, PREC_NONE},
     [TOKEN_CLASS] = {NULL, NULL, PREC_NONE},

@@ -3,10 +3,12 @@
 #include "common.h"
 #include "compiler.h"
 #include "debug.h"
+#include "object.h"
 #include "value.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 VM vm;
 
@@ -54,28 +56,47 @@ Value pop() {
 
 void initVM() {
   resetStack();
+  vm.objects = NULL;
+}
+
+static void freeObject(Obj *object) {
+  switch (object->type) {
+    case OBJ_STRING: {
+      ObjString *string = (ObjString *)object;
+      free(string->chars);
+      free(string);
+      break;
+    }
+  }
+}
+
+void freeObjects() {
+  Obj *object = vm.objects;
+  while (object != NULL) {
+    Obj *next = object->next;
+    freeObject(object);
+    object = next;
+  }
 }
 
 void freeVM() {
   free(vm.stack);
   resetStack();
-  vm.chunk = NULL;
-  vm.ip = NULL;
+  freeObjects();
 }
 
-static bool valuesEqual(Value a, Value b) {
-  if (a.type != b.type)
-    return false;
-  switch (a.type) {
-    case VAL_BOOL:
-      return AS_BOOL(a) == AS_BOOL(b);
-    case VAL_NIL:
-      return true; // Both are nil
-    case VAL_NUMBER:
-      return AS_NUMBER(a) == AS_NUMBER(b);
-    default:
-      return false; // Unsupported types
-  }
+static void concatenate() {
+  ObjString *b = AS_STRING(pop());
+  ObjString *a = AS_STRING(pop());
+
+  int length = a->length + b->length;
+  char *chars = (char *)realloc(NULL, sizeof(char) * (length + 1));
+  memcpy(chars, a->chars, a->length);
+  memcpy(chars + a->length, b->chars, b->length);
+  chars[length] = '\0';
+
+  ObjString *result = takeString(chars, length);
+  push(OBJ_VAL(result));
 }
 
 static InterpretResult run() {
@@ -134,6 +155,10 @@ static InterpretResult run() {
         break;
       }
       case OP_ADD: {
+        if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
+          concatenate();
+          break;
+        }
         BINARY_OP(NUMBER_VAL, +);
         break;
       }
