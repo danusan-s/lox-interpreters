@@ -57,6 +57,7 @@ Value pop() {
 void initVM() {
   resetStack();
   vm.objects = NULL;
+  initTable(&vm.strings);
 }
 
 static void freeObject(Obj *object) {
@@ -80,8 +81,7 @@ void freeObjects() {
 }
 
 void freeVM() {
-  free(vm.stack);
-  resetStack();
+  freeTable(&vm.strings);
   freeObjects();
 }
 
@@ -90,7 +90,7 @@ static void concatenate() {
   ObjString *a = AS_STRING(pop());
 
   int length = a->length + b->length;
-  char *chars = (char *)realloc(NULL, sizeof(char) * (length + 1));
+  char *chars = (char *)malloc(sizeof(char) * (length + 1));
   memcpy(chars, a->chars, a->length);
   memcpy(chars + a->length, b->chars, b->length);
   chars[length] = '\0';

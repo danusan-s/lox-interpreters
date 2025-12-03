@@ -23,6 +23,7 @@ struct ObjString {
   Obj obj;
   int length;
   char *chars;
+  uint32_t hash;
 };
 
 // use function instead of putting directly in the macro

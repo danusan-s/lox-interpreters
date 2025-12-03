@@ -53,14 +53,7 @@ bool valuesEqual(Value a, Value b) {
     case VAL_NUMBER:
       return AS_NUMBER(a) == AS_NUMBER(b);
     case VAL_OBJ:
-      // For simplicity, only compare string objects here
-      if (isObjType(a, OBJ_STRING) && isObjType(b, OBJ_STRING)) {
-        ObjString *strA = AS_STRING(a);
-        ObjString *strB = AS_STRING(b);
-        return strA->length == strB->length &&
-               memcmp(strA->chars, strB->chars, strA->length) == 0;
-      }
-      return AS_OBJ(a) == AS_OBJ(b); // Fallback to pointer comparison
+      return AS_OBJ(a) == AS_OBJ(b);
     default:
       return false; // Unsupported types
   }
