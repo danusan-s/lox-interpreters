@@ -34,6 +34,12 @@ static int constantLongInstruction(const char *name, const Chunk *chunk,
   return offset + 4;
 }
 
+static int byteInstruction(const char *name, const Chunk *chunk, int offset) {
+  uint8_t slot = chunk->code[offset + 1];
+  printf("%-16s %4d\n", name, slot);
+  return offset + 2;
+}
+
 int disassembleInstruction(const Chunk *chunk, int offset) {
   printf("%04d ", offset);
 
@@ -46,8 +52,6 @@ int disassembleInstruction(const Chunk *chunk, int offset) {
 
   uint8_t instruction = chunk->code[offset];
   switch (instruction) {
-    case OP_RETURN:
-      return simpleInstruction("OP_RETURN", offset);
     case OP_CONSTANT:
       return constantInstruction("OP_CONSTANT", chunk, offset);
     case OP_CONSTANT_LONG:
@@ -76,6 +80,22 @@ int disassembleInstruction(const Chunk *chunk, int offset) {
       return simpleInstruction("OP_GREATER", offset);
     case OP_LESS:
       return simpleInstruction("OP_LESS", offset);
+    case OP_PRINT:
+      return simpleInstruction("OP_PRINT", offset);
+    case OP_POP:
+      return simpleInstruction("OP_POP", offset);
+    case OP_DEFINE_GLOBAL:
+      return simpleInstruction("OP_DEFINE_GLOBAL", offset);
+    case OP_SET_GLOBAL:
+      return simpleInstruction("OP_SET_GLOBAL", offset);
+    case OP_GET_GLOBAL:
+      return simpleInstruction("OP_GET_GLOBAL", offset);
+    case OP_GET_LOCAL:
+      return byteInstruction("OP_GET_LOCAL", chunk, offset);
+    case OP_SET_LOCAL:
+      return byteInstruction("OP_SET_LOCAL", chunk, offset);
+    case OP_RETURN:
+      return simpleInstruction("OP_RETURN", offset);
     default:
       printf("UNKNOWN OPCODE %d\n", instruction);
       return offset + 1;

@@ -4,6 +4,7 @@
 #include "compiler.h"
 #include "debug.h"
 #include "object.h"
+#include "table.h"
 #include "value.h"
 #include <stdarg.h>
 #include <stdio.h>
@@ -57,6 +58,7 @@ Value pop() {
 void initVM() {
   resetStack();
   vm.objects = NULL;
+  initTable(&vm.globals);
   initTable(&vm.strings);
 }
 
@@ -81,6 +83,7 @@ void freeObjects() {
 }
 
 void freeVM() {
+  freeTable(&vm.globals);
   freeTable(&vm.strings);
   freeObjects();
 }
@@ -125,12 +128,6 @@ static InterpretResult run() {
 #endif
     uint8_t instruction;
     switch (instruction = READ_BYTE()) {
-      case OP_RETURN: {
-        printf("<< ");
-        printValue(pop());
-        printf("\n");
-        return INTERPRET_OK;
-      }
       case OP_CONSTANT: {
         int constant_ind = READ_BYTE();
         Value constant = vm.chunk->constants.values[constant_ind];
@@ -201,6 +198,56 @@ static InterpretResult run() {
       case OP_LESS: {
         BINARY_OP(BOOL_VAL, <);
         break;
+      }
+      case OP_PRINT: {
+        printValue(pop());
+        printf("\n");
+        break;
+      }
+      case OP_POP: {
+        pop();
+        break;
+      }
+      case OP_DEFINE_GLOBAL: {
+        ObjString *name = AS_STRING(pop());
+        tableSet(&vm.globals, name, peek(0));
+        pop();
+        break;
+      }
+      case OP_SET_GLOBAL: {
+        ObjString *name = AS_STRING(pop());
+        if (tableSet(&vm.globals, name, peek(0))) {
+          // Delete since we set without declaring
+          tableDelete(&vm.globals, name);
+          runtimeError("Undefined variable '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        // don't pop since assignments evaluate to the assigned value
+        break;
+      }
+      case OP_GET_GLOBAL: {
+        ObjString *name = AS_STRING(pop());
+        Value value;
+        if (!tableGet(&vm.globals, name, &value)) {
+          runtimeError("Undefined variable '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        push(value);
+        break;
+      }
+      case OP_GET_LOCAL: {
+        uint8_t slot = READ_BYTE();
+        push(vm.stack[slot]);
+        break;
+      }
+      case OP_SET_LOCAL: {
+        uint8_t slot = READ_BYTE();
+        vm.stack[slot] = peek(0);
+        // don't pop since assignments evaluate to the assigned value
+        break;
+      }
+      case OP_RETURN: {
+        return INTERPRET_OK;
       }
     }
   }

@@ -1,3 +1,4 @@
+#include <malloc.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -5,7 +6,6 @@
 #include "table.h"
 #include "value.h"
 #include "vm.h"
-#include <malloc.h>
 
 #define ALLOCATE_OBJ(type, objectType)                                         \
   (type *)allocateObject(sizeof(type), objectType)
