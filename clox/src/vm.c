@@ -102,6 +102,10 @@ static void concatenate() {
   push(OBJ_VAL(result));
 }
 
+static bool isFalsey(Value value) {
+  return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
 static InterpretResult run() {
 #define READ_BYTE() (*vm.ip++)
 #define BINARY_OP(valueType, op)                                               \
@@ -173,7 +177,7 @@ static InterpretResult run() {
       }
       case OP_NOT: {
         Value value = pop();
-        push(BOOL_VAL(IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value))));
+        push(BOOL_VAL(isFalsey(value)));
         break;
       }
       case OP_NIL:
@@ -244,6 +248,26 @@ static InterpretResult run() {
         uint8_t slot = READ_BYTE();
         vm.stack[slot] = peek(0);
         // don't pop since assignments evaluate to the assigned value
+        break;
+      }
+      case OP_JUMP_IF_FALSE: {
+        uint16_t offset = (READ_BYTE() << 8);
+        offset |= READ_BYTE();
+        if (isFalsey(peek(0))) {
+          vm.ip += offset;
+        }
+        break;
+      }
+      case OP_JUMP: {
+        uint16_t offset = (READ_BYTE() << 8);
+        offset |= READ_BYTE();
+        vm.ip += offset;
+        break;
+      }
+      case OP_LOOP: {
+        uint16_t offset = (READ_BYTE() << 8);
+        offset |= READ_BYTE();
+        vm.ip -= offset;
         break;
       }
       case OP_RETURN: {

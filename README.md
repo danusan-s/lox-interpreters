@@ -26,3 +26,6 @@ The Scanner class tokenizes the lox source code, following which the Parser clas
 - Methods
 - Inheritance
 
+## CLox:
+
+Modification: lox usually throws error for var a = a; but my implementation allows it and tries to find the previous value of a in the enclosing scopes or global if not found then throw error.

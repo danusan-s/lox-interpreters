@@ -7,6 +7,9 @@
 typedef enum {
   OP_POP,
   OP_PRINT,
+  OP_JUMP_IF_FALSE,
+  OP_JUMP,
+  OP_LOOP,
   OP_DEFINE_GLOBAL,
   OP_GET_LOCAL,
   OP_SET_LOCAL,
