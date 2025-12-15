@@ -5,6 +5,7 @@
 #include "value.h"
 
 typedef enum {
+  OP_CALL,
   OP_POP,
   OP_PRINT,
   OP_JUMP_IF_FALSE,

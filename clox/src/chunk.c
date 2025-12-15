@@ -5,6 +5,8 @@
 void initChunk(Chunk *chunk) {
   chunk->count = 0;
   chunk->capacity = 0;
+  chunk->lcount = 0;
+  chunk->lcapacity = 0;
   chunk->code = NULL;
   chunk->lines = NULL;
   initValueArray(&chunk->constants);
@@ -19,11 +21,6 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line) {
       printf("Memory allocation failed\n");
       exit(EXIT_FAILURE);
     }
-    chunk->lines = realloc(chunk->lines, sizeof(int) * chunk->capacity);
-    if (chunk->lines == NULL) {
-      printf("Memory allocation failed\n");
-      exit(EXIT_FAILURE);
-    }
   }
   if (chunk->lcount + 3 > chunk->lcapacity) {
     int oldLCapacity = chunk->lcapacity;
@@ -34,6 +31,8 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line) {
       exit(EXIT_FAILURE);
     }
   }
+
+  // Encoding to compress line information
   if (chunk->lcount == 0) {
     chunk->lines[chunk->lcount] = line;
     chunk->lcount++;

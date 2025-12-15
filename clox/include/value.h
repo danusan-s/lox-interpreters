@@ -17,13 +17,6 @@
 #define IS_NUMBER(value) ((value).type == VAL_NUMBER)
 #define IS_OBJ(value) ((value).type == VAL_OBJ)
 
-#define IS_STRING(value) isObjType(value, OBJ_STRING)
-
-// Get the object pointer and cast to ObjString pointer which will then read
-// that heap location as an ObjString
-#define AS_STRING(value) ((ObjString *)AS_OBJ(value))
-#define AS_CSTRING(value) (((ObjString *)AS_OBJ(value))->chars)
-
 typedef struct Obj Obj;
 typedef struct ObjString ObjString;
 
